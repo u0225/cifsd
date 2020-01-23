@@ -31,11 +31,6 @@ static inline int __acquire_id(struct ksmbd_ida *ida, int from, int to)
 	return ida_simple_get(&ida->map, from, to, GFP_KERNEL);
 }
 
-int ksmbd_acquire_smb1_tid(struct ksmbd_ida *ida)
-{
-	return __acquire_id(ida, 0, 0xFFFF);
-}
-
 int ksmbd_acquire_smb2_tid(struct ksmbd_ida *ida)
 {
 	int id;
@@ -45,11 +40,6 @@ int ksmbd_acquire_smb2_tid(struct ksmbd_ida *ida)
 	} while (id == 0xFFFF);
 
 	return id;
-}
-
-int ksmbd_acquire_smb1_uid(struct ksmbd_ida *ida)
-{
-	return __acquire_id(ida, 1, 0xFFFE);
 }
 
 int ksmbd_acquire_smb2_uid(struct ksmbd_ida *ida)

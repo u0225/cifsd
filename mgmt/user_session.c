@@ -284,11 +284,6 @@ error:
 	return NULL;
 }
 
-struct ksmbd_session *ksmbd_smb1_session_create(void)
-{
-	return __session_create(CIFDS_SESSION_FLAG_SMB1);
-}
-
 struct ksmbd_session *ksmbd_smb2_session_create(void)
 {
 	return __session_create(CIFDS_SESSION_FLAG_SMB2);
@@ -298,8 +293,6 @@ int ksmbd_acquire_tree_conn_id(struct ksmbd_session *sess)
 {
 	int id = -EINVAL;
 
-	if (test_session_flag(sess, CIFDS_SESSION_FLAG_SMB1))
-		id = ksmbd_acquire_smb1_tid(sess->tree_conn_ida);
 	if (test_session_flag(sess, CIFDS_SESSION_FLAG_SMB2))
 		id = ksmbd_acquire_smb2_tid(sess->tree_conn_ida);
 

@@ -62,7 +62,6 @@ extern const struct UniCaseRange CifsUniLowerRange[];
 #endif				/* UNIUPR_NOLOWER */
 
 #ifdef __KERNEL__
-int smb1_utf16_name_length(const __le16 *from, int maxbytes);
 int smb_strtoUTF16(__le16 *to, const char *from, int len,
 	const struct nls_table *codepage);
 char *smb_strndup_from_utf16(const char *src, const int maxlen,
