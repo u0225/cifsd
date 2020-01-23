@@ -19,16 +19,6 @@ config SMB_SERVER
 	help
 	  This config provides support for in-kernel CIFS/SMB3 server.
 
-config SMB_INSECURE_SERVER
-        bool "Support for insecure SMB1/CIFS and SMB2.0 protocols"
-        depends on SMB_SERVER && INET
-        select NLS
-	default n
-
-        help
-	  This enables deprecated insecure protocols dialects: SMB1/CIFS
-	  and SMB2.0
-
 config SMB_SERVER_SMBDIRECT
 	bool "Support for SMB Direct protocol"
 	depends on SMB_SERVER && INFINIBAND && INFINIBAND_ADDR_TRANS

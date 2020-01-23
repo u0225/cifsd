@@ -11,9 +11,6 @@
 #include "server.h"
 #include "buffer_pool.h"
 #include "smb_common.h"
-#ifdef CONFIG_SMB_INSECURE_SERVER
-#include "smb1pdu.h"
-#endif
 #include "mgmt/ksmbd_ida.h"
 #include "connection.h"
 #include "transport_tcp.h"
@@ -102,24 +99,11 @@ void ksmbd_conn_enqueue_request(struct ksmbd_work *work)
 {
 	struct ksmbd_conn *conn = work->conn;
 	struct list_head *requests_queue = NULL;
-#ifdef CONFIG_SMB_INSECURE_SERVER
-	struct smb2_hdr *hdr = REQUEST_BUF(work);
 
-	if (hdr->ProtocolId == SMB2_PROTO_NUMBER) {
-		if (conn->ops->get_cmd_val(work) != SMB2_CANCEL_HE) {
-			requests_queue = &conn->requests;
-			work->syncronous = true;
-		}
-	} else {
-		if (conn->ops->get_cmd_val(work) != SMB_COM_NT_CANCEL)
-			requests_queue = &conn->requests;
-	}
-#else
 	if (conn->ops->get_cmd_val(work) != SMB2_CANCEL_HE) {
 		requests_queue = &conn->requests;
 		work->syncronous = true;
 	}
-#endif
 
 	if (requests_queue) {
 		atomic_inc(&conn->req_running);

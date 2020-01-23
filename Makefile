@@ -21,7 +21,6 @@ ksmbd-y :=	unicode.o auth.o vfs.o vfs_cache.o \
 		connection.o crypto_ctx.o ksmbd_work.o
 
 ksmbd-y +=	smb2pdu.o smb2ops.o smb2misc.o asn1.o
-ksmbd-$(CONFIG_SMB_INSECURE_SERVER) += smb1pdu.o smb1ops.o smb1misc.o
 ksmbd-$(CONFIG_SMB_SERVER_SMBDIRECT) += transport_rdma.o
 else
 # For external module build

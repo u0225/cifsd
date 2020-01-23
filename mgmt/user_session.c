@@ -227,18 +227,6 @@ struct ksmbd_session *ksmbd_session_lookup_slowpath(unsigned long long id)
 	return sess;
 }
 
-#ifdef CONFIG_SMB_INSECURE_SERVER
-static int __init_smb1_session(struct ksmbd_session *sess)
-{
-	int id = ksmbd_acquire_smb1_uid(session_ida);
-
-	if (id < 0)
-		return -EINVAL;
-	sess->id = id;
-	return 0;
-}
-#endif
-
 static int __init_smb2_session(struct ksmbd_session *sess)
 {
 	int id = ksmbd_acquire_smb2_uid(session_ida);
@@ -269,11 +257,6 @@ static struct ksmbd_session *__session_create(int protocol)
 	sess->sequence_number = 1;
 
 	switch (protocol) {
-#ifdef CONFIG_SMB_INSECURE_SERVER
-	case CIFDS_SESSION_FLAG_SMB1:
-		ret = __init_smb1_session(sess);
-		break;
-#endif
 	case CIFDS_SESSION_FLAG_SMB2:
 		ret = __init_smb2_session(sess);
 		break;

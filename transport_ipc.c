@@ -200,16 +200,11 @@ static void ksmbd_nl_init_fixup(void)
 {
 	int i;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
 	for (i = 0; i < ARRAY_SIZE(ksmbd_genl_ops); i++)
 		ksmbd_genl_ops[i].validate = GENL_DONT_VALIDATE_STRICT |
 						GENL_DONT_VALIDATE_DUMP;
 
 	ksmbd_genl_family.policy = ksmbd_nl_policy;
-#else
-	for (i = 0; i < ARRAY_SIZE(ksmbd_genl_ops); i++)
-		ksmbd_genl_ops[i].policy = ksmbd_nl_policy;
-#endif
 }
 
 static int rpc_context_flags(struct ksmbd_session *sess)
@@ -295,10 +290,6 @@ static int ipc_server_config_on_startup(struct ksmbd_startup_request *req)
 	server_conf.tcp_port = req->tcp_port;
 	server_conf.ipc_timeout = req->ipc_timeout * HZ;
 	server_conf.deadtime = req->deadtime * SMB_ECHO_INTERVAL;
-
-#ifdef CONFIG_SMB_INSECURE_SERVER
-	server_conf.flags &= ~KSMBD_GLOBAL_FLAG_CACHE_TBUF;
-#endif
 
 	if (req->smb2_max_read)
 		init_smb2_max_read_size(req->smb2_max_read);

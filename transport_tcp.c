@@ -56,26 +56,16 @@ static inline void ksmbd_tcp_rev_timeout(struct socket *sock, unsigned int sec)
 {
 	struct timeval tv = { .tv_sec = sec, .tv_usec = 0 };
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0)
 	kernel_setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO_OLD, (char *)&tv,
 			  sizeof(tv));
-#else
-	kernel_setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,
-			  sizeof(tv));
-#endif
 }
 
 static inline void ksmbd_tcp_snd_timeout(struct socket *sock, unsigned int sec)
 {
 	struct timeval tv = { .tv_sec = sec, .tv_usec = 0 };
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0)
 	kernel_setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO_OLD, (char *)&tv,
 			  sizeof(tv));
-#else
-	kernel_setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv,
-			  sizeof(tv));
-#endif
 }
 
 static struct tcp_transport *alloc_transport(struct socket *client_sk)
@@ -199,21 +189,12 @@ static int ksmbd_tcp_new_connection(struct socket *client_sk)
 		return -ENOMEM;
 
 	csin = KSMBD_TCP_PEER_SOCKADDR(KSMBD_TRANS(t)->conn);
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4, 16, 0)
-	if (kernel_getpeername(client_sk, csin, &rc) < 0) {
-		ksmbd_err("client ip resolution failed\n");
-		rc = -EINVAL;
-		goto out_error;
-	}
-	rc = 0;
-#else
 	if (kernel_getpeername(client_sk, csin) < 0) {
 		ksmbd_err("client ip resolution failed\n");
 		rc = -EINVAL;
 		goto out_error;
 	}
-#endif
+
 	KSMBD_TRANS(t)->handler = kthread_run(ksmbd_conn_handler_loop,
 					KSMBD_TRANS(t)->conn,
 					"ksmbd:%u", ksmbd_tcp_get_port(csin));
