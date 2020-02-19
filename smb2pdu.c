@@ -7184,9 +7184,6 @@ static int smb20_oplock_break_ack(struct ksmbd_work *work)
 				opinfo->level, rsp_oplevel);
 	}
 
-	opinfo->op_state = OPLOCK_STATE_NONE;
-	wake_up_interruptible(&opinfo->oplock_q);
-
 	if (ret < 0) {
 		rsp->hdr.Status = err;
 		goto err_out;
@@ -7194,6 +7191,9 @@ static int smb20_oplock_break_ack(struct ksmbd_work *work)
 
 	opinfo_put(opinfo);
 	ksmbd_fd_put(work, fp);
+	opinfo->op_state = OPLOCK_STATE_NONE;
+	wake_up_interruptible(&opinfo->oplock_q);
+
 	rsp->StructureSize = cpu_to_le16(24);
 	rsp->OplockLevel = rsp_oplevel;
 	rsp->Reserved = 0;
@@ -7206,6 +7206,8 @@ static int smb20_oplock_break_ack(struct ksmbd_work *work)
 err_out:
 	opinfo_put(opinfo);
 	ksmbd_fd_put(work, fp);
+	opinfo->op_state = OPLOCK_STATE_NONE;
+	wake_up_interruptible(&opinfo->oplock_q);
 	smb2_set_err_rsp(work);
 	return 0;
 }
@@ -7327,9 +7329,9 @@ static int smb21_lease_break_ack(struct ksmbd_work *work)
 
 	lease_state = lease->state;
 	atomic_dec(&opinfo->breaking_cnt);
+	opinfo_put(opinfo);
 	opinfo->op_state = OPLOCK_STATE_NONE;
 	wake_up_interruptible(&opinfo->oplock_q);
-	opinfo_put(opinfo);
 
 	if (ret < 0) {
 		rsp->hdr.Status = err;
@@ -7346,6 +7348,9 @@ static int smb21_lease_break_ack(struct ksmbd_work *work)
 	return 0;
 
 err_out:
+	opinfo_put(opinfo);
+	opinfo->op_state = OPLOCK_STATE_NONE;
+	wake_up_interruptible(&opinfo->oplock_q);
 	smb2_set_err_rsp(work);
 	return 0;
 }
