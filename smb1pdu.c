@@ -520,6 +520,8 @@ int smb_tree_connect_andx(struct ksmbd_work *work)
 		rsp->AndXCommand = SMB_NO_MORE_ANDX_COMMAND;
 	}
 
+	ksmbd_override_cred(sess, share);
+
 	kfree(treename);
 	kfree(dev_type);
 	kfree(name);

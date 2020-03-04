@@ -1568,6 +1568,7 @@ int smb2_tree_connect(struct ksmbd_work *work)
 	if (conn->posix_ext_supported)
 		status.tree_conn->posix_extensions = true;
 
+	ksmbd_override_cred(sess, share);
 out_err1:
 	rsp->StructureSize = cpu_to_le16(16);
 	rsp->Capabilities = 0;
