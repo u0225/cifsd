@@ -3535,7 +3535,7 @@ int smb2_query_dir(struct ksmbd_work *work)
 		 * reserve dot and dotdot entries in head of buffer
 		 * in first response
 		 */
-		rc = ksmbd_populate_dot_dotdot_entries(conn,
+		rc = ksmbd_populate_dot_dotdot_entries(work,
 						req->FileInformationClass,
 						dir_fp,
 						&d_info,
