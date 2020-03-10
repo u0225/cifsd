@@ -22,6 +22,9 @@
 #include "connection.h"
 #include "transport_ipc.h"
 #include "mgmt/user_session.h"
+#include "mgmt/user_config.h"
+#include "mgmt/tree_connect.h"
+#include "mgmt/share_config.h"
 #include "crypto_ctx.h"
 
 #ifdef CONFIG_SMB_SERVER_DEBUGGING
@@ -103,6 +106,38 @@ static inline int check_conn_state(struct ksmbd_work *work)
 		return 1;
 	}
 	return 0;
+}
+
+static void ksmbd_override_cred(struct ksmbd_session *sess,
+		struct ksmbd_share_config *share)
+{
+	struct cred *override_cred;
+	unsigned int uid = user_uid(sess->user);
+	unsigned int gid = user_gid(sess->user);
+
+	if (share->force_uid != 0)
+		uid = share->force_uid;
+	if (share->force_gid != 0)
+		gid = share->force_gid;
+
+	validate_process_creds();
+	revert_creds(get_cred(current_real_cred()));
+	override_cred = prepare_creds();
+	if (override_cred) {
+		override_cred->fsuid.val = uid;
+		override_cred->fsgid.val = gid;
+		override_cred->uid.val = uid;
+		override_cred->gid.val = gid;
+		override_cred->euid.val = uid;
+		override_cred->egid.val = gid;
+		override_cred->suid.val = uid;
+		override_cred->sgid.val = gid;
+
+		validate_process_creds();
+		put_cred(override_creds(override_cred));
+		put_cred(override_cred);
+		validate_process_creds();
+	}
 }
 
 /* @FIXME what a mess... god help. */
@@ -203,6 +238,9 @@ static void __handle_ksmbd_work(struct ksmbd_work *work,
 			goto send;
 		} else if (rc > 0) {
 			rc = conn->ops->get_ksmbd_tcon(work);
+			if (rc > 0)
+				ksmbd_override_cred(work->sess,
+					work->tcon->share_conf);
 			if (rc < 0) {
 				conn->ops->set_rsp_status(work,
 					STATUS_NETWORK_NAME_DELETED);
