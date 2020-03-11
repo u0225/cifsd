@@ -6323,6 +6323,8 @@ int smb2_lock(struct ksmbd_work *work)
 					OFFSET_MAX - flock->fl_start) {
 				ksmbd_debug("Invalid lock range requested\n");
 				lock_length = OFFSET_MAX - flock->fl_start;
+				rsp->hdr.Status = STATUS_INVALID_LOCK_RANGE;
+				goto out;
 			}
 		} else
 			lock_length = 0;
