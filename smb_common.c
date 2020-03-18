@@ -244,12 +244,6 @@ int ksmbd_negotiate_smb_dialect(void *buf)
 	return BAD_PROT_ID;
 }
 
-void ksmbd_init_smb2_server_common(struct ksmbd_conn *conn)
-{
-	if (init_smb2_0_server(conn) == -ENOTSUPP)
-		init_smb2_1_server(conn);
-}
-
 #define SMB_COM_NEGOTIATE	0x72
 int ksmbd_init_smb_server(struct ksmbd_work *work)
 {
@@ -261,7 +255,7 @@ int ksmbd_init_smb_server(struct ksmbd_work *work)
 		return 0;
 
 	proto = *(__le32 *)((struct smb_hdr *)buf)->Protocol;
-	ksmbd_init_smb2_server_common(conn);
+	init_smb3_11_server(conn);
 
 	if (conn->ops->get_cmd_val(work) != SMB_COM_NEGOTIATE)
 		conn->need_neg = false;
@@ -441,7 +435,7 @@ int ksmbd_smb_negotiate_common(struct ksmbd_work *work, unsigned int command)
 	if (command == SMB_COM_NEGOTIATE) {
 		if (__smb2_negotiate(conn)) {
 			conn->need_neg = true;
-			ksmbd_init_smb2_server_common(conn);
+			init_smb3_11_server(conn);
 			init_smb2_neg_rsp(work);
 			ksmbd_debug("Upgrade to SMB2 negotiation\n");
 			return 0;
