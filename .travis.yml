@@ -7,6 +7,7 @@ notifications:
 
 before_script:
  # Download the kernel
+ - git clone git://git.samba.org/sfrench/cifs-2.6
  - git clone git://git.samba.org/sfrench/cifsd
  - sudo apt-get install libelf-dev wget tar gzip python
  - wget https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-4.1.36.tar.gz
